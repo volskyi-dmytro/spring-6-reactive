@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,12 @@ public class BeerServiceImpl implements BeerService {
     @Override
     public Flux<BeerDTO> listBeers() {
         return beerRepository.findAll()
+                .map(beerMapper::beerToBeerDTO);
+    }
+
+    @Override
+    public Mono<BeerDTO> getBeerById(Integer beerId) {
+        return beerRepository.findById(beerId)
                 .map(beerMapper::beerToBeerDTO);
     }
 }
