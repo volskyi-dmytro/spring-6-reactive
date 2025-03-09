@@ -3,8 +3,10 @@ package com.stpunk47.spring_6_reactive.controllers;
 import com.stpunk47.spring_6_reactive.model.BeerDTO;
 import com.stpunk47.spring_6_reactive.services.BeerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,6 +19,14 @@ public class BeerController {
     public static final String BEER_PATH_ID = BEER_PATH + "/{beerId}";
 
     private final BeerService beerService;
+
+    @PutMapping(BEER_PATH_ID)
+    Mono<ResponseEntity<Void>> updateExistingBeer(@PathVariable("beerId") Integer beerId,
+                                                  @RequestBody BeerDTO beerDTO) {
+        return beerService.updateBeer(beerId, beerDTO)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .map(savedDto -> ResponseEntity.noContent().build());
+    }
 
     @PostMapping(BEER_PATH)
     Mono<ResponseEntity<Void>> createNewBeer(@RequestBody BeerDTO beerDTO) {
